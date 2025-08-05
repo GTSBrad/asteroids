@@ -8,22 +8,27 @@ from player import Player
 def main():
     pygame.init()  # Initialize all imported pygame modules
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Set the screen size
-    framerate = pygame.time.Clock()  # Create a clock object to control the frame rate
+    clock = pygame.time.Clock()  # Create a clock object to control the frame rate
     dt = 0  # Initialize delta time
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-    #print("Starting Asteroids!")
+
+    # Main game loop
+    # This loop will run until the user closes the window
+    # or the game is exited
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
-            
-        screen.fill("black")  # Fill the screen with the fill color
-        framerate.tick(60)
-        dt += framerate.get_time() / 1000.0  # Update delta time in seconds        
+        player.update(dt)    
+        
+        screen.fill("black")  # Fill the screen with the fill color           
         player.draw(screen)
         pygame.display.flip()  # Update the full display Surface to the screen
 
+
+        # Limit the frame rate to 60 FPS
+        dt = clock.get_time(60) / 1000.0  # Update delta time in seconds     
       
 if __name__ == "__main__":
     main()
