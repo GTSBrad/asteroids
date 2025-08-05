@@ -28,7 +28,7 @@ def main():
 
 
         # Limit the frame rate to 60 FPS
-        dt = clock.get_time(60) / 1000.0  # Update delta time in seconds     
+        dt = clock.tick(60) / 1000.0  # Update delta time in seconds     
       
 if __name__ == "__main__":
     main()
