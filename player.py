@@ -1,4 +1,4 @@
-import pygame
+import pygame # type: ignore
 from circleshape import *
 from constants import *
 
