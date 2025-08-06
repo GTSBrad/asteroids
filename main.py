@@ -2,7 +2,7 @@
 # the open-source pygame library
 # throughout this file
 import sys
-import pygame
+import pygame # type: ignore
 from constants import *
 from player import Player
 from asteroid import Asteroid
@@ -23,13 +23,13 @@ def main():
     # Create groups for managing game objects
     updatable = pygame.sprite.Group()  # Create a group for all updateable objects
     drawable = pygame.sprite.Group()  # Create a group for all drawable objects
-    asteroid = pygame.sprite.Group()  # Create a group for asteroids
+    asteroids = pygame.sprite.Group()  # Create a group for asteroids
     asteroid_field = pygame.sprite.Group()  # Create a group for the asteroid field
     shots = pygame.sprite.Group()
 
     # Create instances of game objects and add them to the respective groups
     Player.containers = (updatable, drawable)  # Set the containers for the Player class
-    Asteroid.containers = (asteroid, updatable, drawable)
+    Asteroid.containers = (asteroids, updatable, drawable)
     Shot.containers = (shots, updatable, drawable)
     AsteroidField.containers = (updatable, asteroid_field)  # Set the containers for the AsteroidField class
 
@@ -47,36 +47,24 @@ def main():
                 return
         updatable.update(dt)
 
-        for object in drawable:
-            if isinstance(object, Asteroid):
-                # Check for collision with player
-                if object.collides_with(player):
-                    print("Game Over!")
-                    pygame.quit()
-                    return
-                
-        for shot in shots:
-            if asteroid.collides_with(shot):
-                shot.kill()
-                asteroid.kill()
+        for asteroid in asteroids:
+            if asteroid.collides_with(player):
+                print("Game over!")
+                sys.exit()
 
-                # for obj in drawable:
-                #     if isinstance(obj, Shot):
-                #         for x in asteroid:
-                #             if x.collision(obj):
-                #                 x.kill()
-        
+            for shot in shots:
+                if asteroid.collides_with(shot):
+                    shot.kill()
+                    asteroid.kill()
 
-        screen.fill("black")  # Fill the screen with the fill color           
+        screen.fill("black")
 
-        for object in drawable:
-            object.draw(screen)
+        for obj in drawable:
+            obj.draw(screen)
 
-        pygame.display.flip()  # Update the full display Surface to the screen
+        pygame.display.flip()
 
-
-        # Limit the frame rate to 60 FPS
-        dt = clock.tick(60) / 1000.0  # Update delta time in seconds     
-      
+        # limit the framerate to 60 FPS
+        dt = clock.tick(60) / 1000
 if __name__ == "__main__":
     main()
