@@ -15,5 +15,5 @@ PLAYER_SPEED = 200  # pixels per second
 
 # Constants for shots
 SHOT_RADIUS = 5
-PLAYER_SHOT_SPEED = 500  # pixels per second
+PLAYER_SHOOT_SPEED = 500  # pixels per second
 PLAYER_SHOOT_COOLDOWN = 0.3  # seconds between shots
