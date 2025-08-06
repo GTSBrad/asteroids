@@ -34,7 +34,16 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
-        updateable.update(dt)    
+        updateable.update(dt)
+
+        for object in drawable:
+            if isinstance(object, Asteroid):
+                # Check for collision with player
+                if object.collision(player):
+                    print("Game Over!")
+                    pygame.quit()
+                    return
+                
         
         screen.fill("black")  # Fill the screen with the fill color           
 
