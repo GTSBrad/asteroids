@@ -41,6 +41,27 @@ def main():
     font = pygame.font.SysFont(None, 72)
     small_font = pygame.font.SysFont(None, 32)
     paused = False
+    game_over = False
+
+    def restart_game():
+        nonlocal game_over, player, asteroid_field
+        # Clear all game objects
+        asteroids.empty()
+        shots.empty()
+        updatable.empty()
+        drawable.empty()
+        
+        # Recreate containers
+        updatable.add(asteroid_field)
+        
+        # Recreate player
+        player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        
+        # Reset asteroid field
+        asteroid_field.spawn_timer = 0.0
+        
+        # Reset game state
+        game_over = False
 
     # Main game loop
     # This loop will run until the user closes the window
@@ -52,21 +73,22 @@ def main():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
-                    paused = not paused
+                    if not game_over:
+                        paused = not paused
                 elif event.key == pygame.K_ESCAPE:
-                    if paused:
-                        paused = False
-                    else:
+                    if game_over or paused:
                         pygame.quit()
                         return
+                elif event.key == pygame.K_r and game_over:
+                    restart_game()
 
-        if not paused:
+        if not paused and not game_over:
             updatable.update(dt)
 
             for asteroid in asteroids:
                 if asteroid.collides_with(player):
-                    print("Game over!")
-                    sys.exit()
+                    game_over = True
+                    break
 
                 for shot in shots:
                     if asteroid.collides_with(shot):
@@ -88,6 +110,19 @@ def main():
             screen.blit(text, text_rect)
 
             subtitle = small_font.render("Press P to resume or ESC to quit", True, "white")
+            subtitle_rect = subtitle.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 30))
+            screen.blit(subtitle, subtitle_rect)
+
+        if game_over:
+            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 200))
+            screen.blit(overlay, (0, 0))
+
+            text = font.render("GAME OVER", True, "red")
+            text_rect = text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 40))
+            screen.blit(text, text_rect)
+
+            subtitle = small_font.render("Press R to restart or ESC to quit", True, "white")
             subtitle_rect = subtitle.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 30))
             screen.blit(subtitle, subtitle_rect)
 
