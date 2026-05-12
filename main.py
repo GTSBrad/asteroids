@@ -37,6 +37,11 @@ def main():
     asteroid_field = AsteroidField()  # Create an instance of the AsteroidField class
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
+    # Prepare fonts and pause state
+    font = pygame.font.SysFont(None, 72)
+    small_font = pygame.font.SysFont(None, 32)
+    paused = False
+
     # Main game loop
     # This loop will run until the user closes the window
     # or the game is exited
@@ -45,22 +50,46 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
-        updatable.update(dt)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    paused = not paused
+                elif event.key == pygame.K_ESCAPE:
+                    if paused:
+                        paused = False
+                    else:
+                        pygame.quit()
+                        return
 
-        for asteroid in asteroids:
-            if asteroid.collides_with(player):
-                print("Game over!")
-                sys.exit()
+        if not paused:
+            updatable.update(dt)
 
-            for shot in shots:
-                if asteroid.collides_with(shot):
-                    shot.kill()
-                    asteroid.split()
+            for asteroid in asteroids:
+                if asteroid.collides_with(player):
+                    print("Game over!")
+                    sys.exit()
+
+                for shot in shots:
+                    if asteroid.collides_with(shot):
+                        shot.kill()
+                        asteroid.split()
 
         screen.fill("black")
 
         for obj in drawable:
             obj.draw(screen)
+
+        if paused:
+            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 150))
+            screen.blit(overlay, (0, 0))
+
+            text = font.render("PAUSED", True, "white")
+            text_rect = text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 40))
+            screen.blit(text, text_rect)
+
+            subtitle = small_font.render("Press P to resume or ESC to quit", True, "white")
+            subtitle_rect = subtitle.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 30))
+            screen.blit(subtitle, subtitle_rect)
 
         pygame.display.flip()
 
