@@ -199,12 +199,45 @@ def main():
     small_font = pygame.font.SysFont(None, 32)
     paused = False
     game_over = False
+    score = 0
+    lives = 3
+
+    def score_for_asteroid(radius):
+        if radius == ASTEROID_MIN_RADIUS:
+            return 50
+        if radius == ASTEROID_MIN_RADIUS * 2:
+            return 100
+        if radius == ASTEROID_MIN_RADIUS * 3:
+            return 200
+        return 0
+
+    def respawn_player():
+        nonlocal asteroid_field, player
+        asteroids.empty()
+        shots.empty()
+        updatable.empty()
+        drawable.empty()
+        asteroid_field_group.empty()
+
+        screen_width, screen_height = screen.get_size()
+        asteroid_field = AsteroidField()
+        player = Player(screen_width / 2, screen_height / 2)
+
+    def lose_life():
+        nonlocal lives, game_over
+        lives -= 1
+        if lives <= 0:
+            game_over = True
+        else:
+            respawn_player()
 
     def start_game():
-        nonlocal current_state, asteroid_field, player, game_over, paused
+        nonlocal current_state, asteroid_field, player, game_over, paused, score, lives
         current_state = STATE_GAME
         game_over = False
         paused = False
+        score = 0
+        lives = 3
         
         # Clear all game objects
         asteroids.empty()
@@ -300,12 +333,13 @@ def main():
 
                 for asteroid in asteroids:
                     if asteroid.collides_with(player):
-                        game_over = True
+                        lose_life()
                         break
 
                     for shot in shots:
                         if asteroid.collides_with(shot):
                             shot.kill()
+                            score += score_for_asteroid(asteroid.radius)
                             asteroid.split()
 
             screen.fill("black")
@@ -340,6 +374,13 @@ def main():
                 subtitle = small_font.render("Press R to restart or ESC to go to menu", True, "white")
                 subtitle_rect = subtitle.get_rect(center=(screen_width / 2, screen_height / 2 + 30))
                 screen.blit(subtitle, subtitle_rect)
+
+            score_text = small_font.render(f"SCORE: {score}", True, "white")
+            screen.blit(score_text, (20, 20))
+
+            lives_text = small_font.render(f"LIVES: {lives}", True, "white")
+            lives_x = screen_width - lives_text.get_width() - 20
+            screen.blit(lives_text, (lives_x, 20))
 
         pygame.display.flip()
 
