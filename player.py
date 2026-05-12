@@ -10,6 +10,7 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)  # Initialize CircleShape with player radius
         self.rotation = 0  # Player's rotation angle in degrees
         self.shoot_timer = 0
+        self.invincible_timer = 0.0
     
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -20,7 +21,8 @@ class Player(CircleShape):
         return [a, b, c]
 
     def draw(self, screen):
-        pygame.draw.polygon(screen, "white", self.triangle(), 2)  # Draw the player triangle
+        color = "yellow" if self.invincible_timer > 0 else "white"
+        pygame.draw.polygon(screen, color, self.triangle(), 2)  # Draw the player triangle
 
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED * dt
@@ -30,6 +32,11 @@ class Player(CircleShape):
         self.position += forward * PLAYER_SPEED * dt
 
     def update(self, dt):
+        if self.invincible_timer > 0:
+            self.invincible_timer -= dt
+            if self.invincible_timer <= 0:
+                self.invincible_timer = 0
+
         self.shoot_timer -= dt
         keys = pygame.key.get_pressed()
 

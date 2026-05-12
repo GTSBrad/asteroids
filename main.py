@@ -211,17 +211,13 @@ def main():
             return 200
         return 0
 
-    def respawn_player():
-        nonlocal asteroid_field, player
-        asteroids.empty()
-        shots.empty()
-        updatable.empty()
-        drawable.empty()
-        asteroid_field_group.empty()
-
-        screen_width, screen_height = screen.get_size()
-        asteroid_field = AsteroidField()
-        player = Player(screen_width / 2, screen_height / 2)
+    def clear_asteroids_near_player():
+        if not player:
+            return
+        clear_radius = player.radius * 4
+        for asteroid in list(asteroids):
+            if asteroid.position.distance_to(player.position) <= clear_radius:
+                asteroid.kill()
 
     def lose_life():
         nonlocal lives, game_over
@@ -229,7 +225,11 @@ def main():
         if lives <= 0:
             game_over = True
         else:
-            respawn_player()
+            clear_asteroids_near_player()
+            player.invincible_timer = 3.0
+            screen_width, screen_height = screen.get_size()
+            player.position = pygame.Vector2(screen_width / 2, screen_height / 2)
+            player.velocity = pygame.Vector2(0, 0)
 
     def start_game():
         nonlocal current_state, asteroid_field, player, game_over, paused, score, lives
@@ -332,7 +332,7 @@ def main():
                 updatable.update(dt)
 
                 for asteroid in asteroids:
-                    if asteroid.collides_with(player):
+                    if player.invincible_timer <= 0 and asteroid.collides_with(player):
                         lose_life()
                         break
 
